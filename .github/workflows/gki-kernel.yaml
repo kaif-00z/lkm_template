@@ -2,31 +2,12 @@ name: Build GKI LKM
 
 on:
   workflow_call:
-    inputs:
-      version:
-        description: "GKI version (e.g. android14-6.1)"
-        required: true
-        type: string
-      os_patch_level:
-        description: "Patch level (e.g. 2025-10)"
-        required: true
-        type: string
-
   workflow_dispatch:
-    inputs:
-      version:
-        description: "GKI version (e.g. android14-6.1)"
-        required: true
-        type: string
-      os_patch_level:
-        description: "Patch level (e.g. 2025-10)"
-        required: true
-        type: string
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build LKM for ${{ inputs.version }}.${{ inputs.sub_level }}
+    name: Build LKM for A12 5.10
 
     steps:
       - name: Maximize build space
@@ -44,20 +25,18 @@ jobs:
 
       - name: Install required packages
         run: |
-          echo lol
           sudo apt-get update
           sudo apt-get install -y bc build-essential flex bison libssl-dev libelf-dev git python3 unzip wget cpio gcc-aarch64-linux-gnu llvm-15
 
       - name: Clone AOSP GKI kernel
         run: |
           mkdir android-kernel && cd android-kernel
-          TAG="${{ inputs.version }}-${{ inputs.os_patch_level }}"
+          TAG="android12-5.10-2025-05"
           echo "Fetching GKI tag: ${TAG}"
-          # git clone --depth=1 https://github.com/aosp-mirror/kernel_common/ -b ${TAG} common
           curl https://storage.googleapis.com/git-repo-downloads/repo > repo
           chmod +x repo
           ./repo init --depth=1 https://android.googlesource.com/kernel/manifest -b "common-${TAG}"
-          ./repo sync -c -j $(nproc)
+          ./repo sync -c -j$(nproc)
 
       - name: Prepare GKI
         working-directory: android-kernel
@@ -118,12 +97,12 @@ jobs:
           if [ -f ./dist/lkm_template.ko ]; then
           	mv ./dist/lkm_template.ko lkm_template.ko
           else
-          	mv out/${{ inputs.version }}/common/drivers/lkm_template/lkm_template.ko lkm_template.ko
+          	mv out/android12-5.10/common/drivers/lkm_template/lkm_template.ko lkm_template.ko
           fi
 
       - name: Upload lkm_template.ko
         uses: actions/upload-artifact@v4
         with:
-          name: lkm_template-${{ inputs.version }}.${{ inputs.sub_level }}
+          name: lkm_template-android12-5.10
           path: android-kernel/lkm_template.ko
 

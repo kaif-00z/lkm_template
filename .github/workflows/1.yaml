@@ -31,8 +31,6 @@ jobs:
           mkdir binaries
 
           ./zig/zig cc -target aarch64-linux -s -Oz 1.c -static -Wl,--gc-sections -Wno-format -o binaries/1-arm64
-          ./zig/zig cc -target arm-linux -s -Oz 1.c -static -Wl,--gc-sections -Wno-format -o binaries/1-arm
-          ./zig/zig cc -target x86_64-linux -s -Oz 1.c -static -Wl,--gc-sections -Wno-format -o binaries/1-x64
 
           wc -c binaries/1-*
           
